@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/project-banner.png" alt="Agriculture Chatbot Project Banner">
+</p>
+
 # 🌾 Agriculture Chatbot
 
 A conversational agriculture chatbot built using a static collection of agriculture e-books from Project Gutenberg.
@@ -28,7 +32,19 @@ The system is designed to answer questions using the provided agriculture books 
 
 ---
 
-## 2. Dataset
+## 2. Chatbot Interface
+
+The application provides a conversational interface for asking questions about the agriculture books.
+
+<p align="center">
+  <img src="assets/chatbot-screenshot.png" alt="Agriculture Chatbot Streamlit Interface" width="900">
+</p>
+
+The interface displays the knowledge base, conversation history, generated answers, and source information.
+
+---
+
+## 3. Dataset
 
 The assignment provided seven Project Gutenberg links. One book (`40190`) was listed twice, so the knowledge base contains **six unique books**.
 
@@ -72,85 +88,63 @@ https://www.gutenberg.org/ebooks/4525
 
 ---
 
-## 3. System Architecture
+## 4. System Architecture
 
 The system consists of two main stages:
 
 1. **Offline indexing pipeline**
 2. **Runtime conversational RAG pipeline**
 
-```text
-OFFLINE INDEXING
+### Architecture Diagram
 
-Project Gutenberg Books
-        |
-        v
-Download Raw Text
-        |
-        v
-Preprocessing
-(Remove Gutenberg metadata
- and normalize text)
-        |
-        v
-Chunking
-(844 text chunks)
-        |
-        v
-Sentence Transformer
-(all-MiniLM-L6-v2)
-        |
-        v
-FAISS Vector Store
-(books.faiss + metadata.pkl)
+```mermaid
+flowchart TD
 
+    %% Offline indexing pipeline
+    A[6 Project Gutenberg<br/>Agriculture E-books]
+    B[Download Raw Text]
+    C[Preprocessing<br/>Remove Gutenberg metadata<br/>Normalize text]
+    D[Chunking<br/>844 text chunks]
+    E[Sentence Transformer<br/>all-MiniLM-L6-v2]
+    F[FAISS Vector Store<br/>books.faiss<br/>metadata.pkl]
 
-RUNTIME RAG
+    A --> B --> C --> D --> E --> F
 
-User
-  |
-  v
-Streamlit Chat Interface
-  |
-  v
-Conversation Context
-  |
-  v
-Query Rewriting
-(for follow-up questions)
-  |
-  v
-Query Embedding
-  |
-  v
-Semantic Retrieval
-(FAISS)
-  |
-  v
-Relevance Filtering
-(similarity >= 0.55)
-  |
-  v
-Context Construction
-  |
-  v
-Llama 3.1 8B
-(Ollama)
-  |
-  v
-Final Answer
-  |
-  v
-Source Information
+    %% Runtime RAG pipeline
+    U[User]
+    G[Streamlit Chat Interface]
+    H[Conversation Context]
+    I[Query Rewriting<br/>for follow-up questions]
+    J[Query Embedding]
+    K[Semantic Retrieval<br/>FAISS]
+    L[Relevance Filtering<br/>Similarity ≥ 0.55]
+    M[Context Construction]
+    N[Llama 3.1 8B<br/>Ollama]
+    O[Final Answer]
+    P[Source Information]
 
-FAISS Vector Store
-        |
-        +----> Semantic Retrieval
+    U --> G
+    G --> H
+    H --> I
+    I --> J
+    J --> K
+    K --> L
+    L --> M
+    M --> N
+    N --> O
+    O --> G
+    G --> P
+
+    F --> K
+
+    %% Topic summarization
+    G -.-> S[Topic Summarization]
+    S --> J
 ```
 
 ---
 
-## 4. RAG Workflow
+## 5. RAG Workflow
 
 The main Retrieval-Augmented Generation workflow is:
 
@@ -178,7 +172,7 @@ data/processed/
 
 The processed books are divided into smaller text chunks so that relevant passages can be retrieved efficiently.
 
-The current dataset contains approximately:
+The current dataset contains:
 
 ```text
 844 chunks
@@ -295,7 +289,7 @@ The generated answer is displayed through the Streamlit interface together with 
 
 ---
 
-## 5. Topic Summarization
+## 6. Topic Summarization
 
 The chatbot also supports topic-level summaries across the agriculture books.
 
@@ -318,7 +312,7 @@ The summarization process is designed to mention only books for which relevant r
 
 ---
 
-## 6. Technologies
+## 7. Technologies
 
 | Component | Technology |
 |---|---|
@@ -335,55 +329,60 @@ The summarization process is designed to mention only books for which relevant r
 
 ---
 
-## 7. Project Structure
+## 8. Project Structure
 
 ```text
 agriculture-chatbot/
-|
-+-- data/
-|   +-- raw/
-|   |   +-- 20772.txt
-|   |   +-- 40190.txt
-|   |   +-- 4525.txt
-|   |   +-- 4924.txt
-|   |   +-- 56640.txt
-|   |   +-- 67813.txt
-|   |
-|   +-- processed/
-|   |   +-- 20772.txt
-|   |   +-- 40190.txt
-|   |   +-- 4525.txt
-|   |   +-- 4924.txt
-|   |   +-- 56640.txt
-|   |   +-- 67813.txt
-|   |
-|   +-- chunks.json
-|
-+-- vectorstore/
-|   +-- books.faiss
-|   +-- metadata.pkl
-|
-+-- src/
-|   +-- app.py
-|   +-- build_index.py
-|   +-- chunk_books.py
-|   +-- download_books.py
-|   +-- inspect_chunks.py
-|   +-- llm.py
-|   +-- preprocess.py
-|   +-- rag.py
-|   +-- retriever.py
-|   +-- test_rag.py
-|   +-- test_retrieval.py
-|
-+-- .gitignore
-+-- requirements.txt
-+-- README.md
+│
+├── assets/
+│   ├── project-banner.png
+│   └── chatbot-screenshot.png
+│
+├── data/
+│   ├── raw/
+│   │   ├── 20772.txt
+│   │   ├── 40190.txt
+│   │   ├── 4525.txt
+│   │   ├── 4924.txt
+│   │   ├── 56640.txt
+│   │   └── 67813.txt
+│   │
+│   ├── processed/
+│   │   ├── 20772.txt
+│   │   ├── 40190.txt
+│   │   ├── 4525.txt
+│   │   ├── 4924.txt
+│   │   ├── 56640.txt
+│   │   └── 67813.txt
+│   │
+│   └── chunks.json
+│
+├── vectorstore/
+│   ├── books.faiss
+│   └── metadata.pkl
+│
+├── src/
+│   ├── app.py
+│   ├── build_index.py
+│   ├── chunk_books.py
+│   ├── download_books.py
+│   ├── inspect_chunks.py
+│   ├── llm.py
+│   ├── preprocess.py
+│   ├── rag.py
+│   ├── rag_backup.py
+│   ├── retriever.py
+│   ├── test_rag.py
+│   └── test_retrieval.py
+│
+├── .gitignore
+├── requirements.txt
+└── README.md
 ```
 
 ---
 
-## 8. Main Components
+## 9. Main Components
 
 ### `download_books.py`
 
@@ -449,7 +448,7 @@ Provides the Streamlit user interface.
 
 ---
 
-## 9. Installation
+## 10. Installation
 
 ### Clone the repository
 
@@ -480,7 +479,7 @@ pip install -r requirements.txt
 
 ---
 
-## 10. Ollama Setup
+## 11. Ollama Setup
 
 The chatbot uses **Llama 3.1 8B** through Ollama.
 
@@ -506,7 +505,7 @@ Ollama should be running locally before starting the chatbot.
 
 ---
 
-## 11. Building the Knowledge Base
+## 12. Building the Knowledge Base
 
 If the raw books need to be downloaded again:
 
@@ -541,7 +540,7 @@ vectorstore/metadata.pkl
 
 ---
 
-## 12. Running the Chatbot
+## 13. Running the Chatbot
 
 Start the Streamlit application:
 
@@ -562,7 +561,7 @@ The interface provides:
 
 ---
 
-## 13. Example Questions
+## 14. Example Questions
 
 ### General Questions
 
@@ -598,7 +597,7 @@ Summarize the main approaches to maintaining soil fertility across the books.
 
 ---
 
-## 14. Testing
+## 15. Testing
 
 The project includes test scripts for retrieval and RAG functionality.
 
@@ -620,7 +619,7 @@ For questions unrelated to the agriculture books, the relevance filtering mechan
 
 ---
 
-## 15. Grounding and Relevance Control
+## 16. Grounding and Relevance Control
 
 A key part of the system is ensuring that answers are grounded in the provided books.
 
@@ -650,7 +649,7 @@ The generation prompt also instructs the model to:
 
 ---
 
-## 16. Conversation Handling
+## 17. Conversation Handling
 
 The chatbot maintains recent conversation history.
 
@@ -673,7 +672,7 @@ This improves retrieval for conversational interactions while avoiding an unnece
 
 ---
 
-## 17. Limitations
+## 18. Limitations
 
 The current implementation has several limitations:
 
@@ -686,7 +685,7 @@ The current implementation has several limitations:
 
 ---
 
-## 18. Future Improvements
+## 19. Future Improvements
 
 Possible future improvements include:
 
@@ -703,7 +702,7 @@ Possible future improvements include:
 
 ---
 
-## 19. Conclusion
+## 20. Conclusion
 
 This project implements a conversational agriculture question-answering system using a **Retrieval-Augmented Generation architecture**.
 
@@ -735,3 +734,9 @@ Streamlit Chat Interface
 ```
 
 The resulting chatbot can answer questions from the provided agriculture books, handle conversational follow-up questions, and generate summaries across multiple books while keeping generated responses grounded in retrieved source material.
+
+---
+
+## Repository
+
+GitHub: https://github.com/chalithalumbini/agriculture-chatbot
